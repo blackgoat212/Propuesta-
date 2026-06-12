@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>¿Quieres ir al cine?</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #ffd6e8;
+    font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 40px 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    text-align: center;
+    max-width: 90%;
+  }
+  h1 {
+    color: #d6336c;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+  .buttons {
+    position: relative;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    min-height: 70px;
+  }
+  button {
+    padding: 16px 36px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.05s linear;
+  }
+  #btnSi {
+    background: #4caf50;
+    color: white;
+  }
+  #btnNo {
+    background: #e0e0e0;
+    color: #555;
+    position: relative;
+    transition: left 0.4s ease, top 0.4s ease, transform 0.4s ease;
+  }
+  #btnGrande, #btnGrande2 {
+    background: #4caf50;
+    color: white;
+    padding: 22px 60px;
+    font-size: 1.4rem;
+    border-radius: 18px;
+  }
+</style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h1>¿Quieres ir al cine? 🍿</h1>
+    <div class="buttons" id="buttons">
+      <button id="btnSi" onclick="aceptar()">Sí</button>
+      <button id="btnNo">No</button>
+    </div>
+  </div>
+
+<script>
+  const btnNo = document.getElementById('btnNo');
+  const buttons = document.getElementById('buttons');
+  const DISTANCIA_MIN = 100; // px: radio mínimo antes de huir
+
+  function moverBoton(mouseX, mouseY) {
+    const rect = btnNo.getBoundingClientRect();
+    const btnCenterX = rect.left + rect.width / 2;
+    const btnCenterY = rect.top + rect.height / 2;
+
+    const dx = btnCenterX - mouseX;
+    const dy = btnCenterY - mouseY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < DISTANCIA_MIN) {
+      // Vector que apunta en dirección opuesta al cursor
+      let dirX = dx / (dist || 1);
+      let dirY = dy / (dist || 1);
+
+      const SALTO = 120; // px que se desplaza cada vez
+
+      let nuevoX = rect.left + dirX * SALTO;
+      let nuevoY = rect.top + dirY * SALTO;
+
+      // Mantenerlo dentro de los límites de la pantalla
+      const margen = 10;
+      nuevoX = Math.max(margen, Math.min(window.innerWidth - rect.width - margen, nuevoX));
+      nuevoY = Math.max(margen, Math.min(window.innerHeight - rect.height - margen, nuevoY));
+
+      btnNo.style.position = 'fixed';
+      btnNo.style.left = nuevoX + 'px';
+      btnNo.style.top = nuevoY + 'px';
+      btnNo.style.margin = '0';
+    }
+  }
+
+  document.addEventListener('mousemove', (e) => {
+    moverBoton(e.clientX, e.clientY);
+  });
+
+  // ⚠️ Pega aquí tu Access Key de https://web3forms.com (gratis, te llega por email)
+  const ACCESS_KEY = 'PEGA_AQUI_TU_ACCESS_KEY';
+
+  function enviarRespuesta(datos) {
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_key: ACCESS_KEY,
+        subject: '¡Nueva respuesta del cine! 🍿',
+        ...datos
+      })
+    }).catch(() => {}); // si falla, no interrumpe la experiencia
+  }
+
+  function aceptar() {
+    enviarRespuesta({ pregunta1: 'Sí', pregunta2: '' });
+    document.getElementById('card').innerHTML = `
+      <h1>¿El día del estreno o un día después? 🎬</h1>
+      <div class="buttons">
+        <button id="btnGrande" onclick="confirmarFecha('Día del estreno')">El día del estreno</button>
+      </div>
+      <div class="buttons" style="margin-top:15px">
+        <button id="btnGrande2" onclick="confirmarFecha('Un día después')">Un día después</button>
+      </div>
+    `;
+  }
+
+  function confirmarFecha(opcion) {
+    enviarRespuesta({ pregunta1: 'Sí', pregunta2: opcion });
+    document.getElementById('card').innerHTML = `
+      <h1>¡Genial! 🎉 Te aviso con la fecha 💌</h1>
+    `;
+  }
+</script>
+</body>
+</html>
